@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人作品集</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 自定义样式 */
+        body {
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+            font-family: 'Poppins', 'Noto Sans SC', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* 页面切换时的淡入效果 */
+        .page {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 导航栏激活状态 */
+        .nav-link.active {
+            color: #38bdf8; /* sky-400 */
+            position: relative;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: #38bdf8;
+            border-radius: 1px;
+        }
+        /* 作品卡片悬停效果 */
+        .portfolio-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #1f2937; /* gray-800 */
+        }
+        .portfolio-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+        .portfolio-card img, .video-thumb-container {
+            cursor: pointer;
+        }
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #38bdf8;
+            border-radius: 10px;
+            border: 2px solid #1e1e1e;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #7dd3fc;
+        }
+        /* 视频播放按钮 */
+        .video-thumb-container {
+            position: relative;
+        }
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .video-thumb-container:hover .play-button {
+            background-color: rgba(56, 189, 248, 0.8);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        .play-button svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+        /* 灯箱通用样式 */
+        .lightbox {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* 图片放大灯箱样式 */
+        #lightbox-img {
+            transition: transform 0.2s ease-out;
+        }
+        #lightbox-img.panning {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <header class="bg-black bg-opacity-50 backdrop-blur-lg sticky top-0 z-40">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-white tracking-wider" onclick="showPage('home')">作品集</a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#" class="nav-link text-gray-300 hover:text-sky-400 transition-colors duration-300 active" onclick="showPage('home', this)">首页</a>
+                <a href="#" class="nav-link text-gray-300 hover:text-sky-400 transition-colors duration-300" onclick="showPage('videos', this)">视频作品</a>
+                <a href="#" class="nav-link text-gray-300 hover:text-sky-400 transition-colors duration-300" onclick="showPage('main-images', this)">主图作品</a>
+                <a href="#" class="nav-link text-gray-300 hover:text-sky-400 transition-colors duration-300" onclick="showPage('detail-pages', this)">详情页作品</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </nav>
+         <div id="mobile-menu" class="hidden md:hidden bg-black bg-opacity-80">
+            <a href="#" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-800" onclick="showPage('home')">首页</a>
+            <a href="#" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-800" onclick="showPage('videos')">视频作品</a>
+            <a href="#" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-800" onclick="showPage('main-images')">主图作品</a>
+            <a href="#" class="block py-2 px-4 text-sm text-gray-300 hover:bg-gray-800" onclick="showPage('detail-pages')">详情页作品</a>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div id="home" class="page container mx-auto px-6 py-12">
+            <section class="flex flex-col md:flex-row items-center mb-24">
+                <div class="md:w-1/3 mb-8 md:mb-0">
+                    <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/db4376cd5145403693656342994/Y9VZZMOF4r4A.jpg" alt="个人照片" class="rounded-full w-48 h-48 md:w-64 md:h-64 object-cover mx-auto shadow-lg border-4 border-gray-700">
+                </div>
+                <div class="md:w-2/3 md:pl-12 text-center md:text-left">
+                    <h1 class="text-4xl md:text-6xl font-bold text-white mb-4">您好，我是鲁闯 <span class="text-sky-400"></span></h1>
+                    <p class="text-lg text-gray-400 mb-6">一位充满激情的C4D设计师，专注于创造富有影响力和美感的视觉呈现。擅长视觉设计、动态图形和品牌构建。</p>
+                    <div class="flex justify-center md:justify-start space-x-4">
+                        <a href="#" id="contact-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">联系我</a>
+                        <a href="./鲁闯的简历.pdf" download="鲁闯-设计师-简历.pdf" class="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition-colors duration-300">下载简历</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-20">
+                <h2 class="text-3xl font-bold text-white mb-8 text-center">视频作品</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="portfolio-card rounded-lg overflow-hidden">
+                        <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/b1af94035145403693598330631/P8UEYscv9bAA.mp4')">
+                            <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/844206675145403693587851512/7LDUAtZMPCMA.jpg" alt="视频封面1" class="w-full h-full object-cover">
+                             <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl font-semibold text-white mb-2">转换器项目</h3>
+                            <p class="text-gray-400 text-sm">转换器产品三维动画，动画、灯光、材质，后期合成由个人独立完成。</p>
+                        </div>
+                    </div>
+                    <div class="portfolio-card rounded-lg overflow-hidden">
+                        <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/8f939cdf5145403693631903237/ibpk0k5oJdkA.mp4')">
+                           <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/cc9527d05145403693588657084/sc1BLxtWfbEA.jpg" alt="视频封面2" class="w-full h-full object-cover">
+                             <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl font-semibold text-white mb-2">降噪耳机项目</h3>
+                            <p class="text-gray-400 text-sm">降噪耳机产品三维动画，动画、灯光、材质，后期合成由个人独立完成。</p>
+                        </div>
+                    </div>
+                    <div class="portfolio-card rounded-lg overflow-hidden">
+                        <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/ec6f21885145403693585926323/SMau65CoaeAA.mp4')">
+                            <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/33ee678b5145403693616798117/PaFBAt8jILkA.jpg" alt="视频封面3" class="w-full h-full object-cover">
+                            <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl font-semibold text-white mb-2">充电器项目</h3>
+                            <p class="text-gray-400 text-sm">车载充电器产品三维动画，动画、灯光、材质，后期合成由个人独立完成。</p>
+                        </div>
+                    </div>
+                    <div class="portfolio-card rounded-lg overflow-hidden">
+                        <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/723bbffd5145403693600412919/ypygJoRFh10A.mp4')">
+                            <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/02199b045145403693629547150/2hGpL2CwzfoA.jpg" alt="视频封面4" class="w-full h-full object-cover">
+                            <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="text-xl font-semibold text-white mb-2">U盘项目</h3>
+                            <p class="text-gray-400 text-sm">U盘产品三维动画，动画、灯光、材质，后期合成由个人独立完成。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-12">
+                    <button onclick="showPage('videos')" class="border-2 border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black font-semibold py-3 px-8 rounded-lg transition-colors duration-300">
+                        更多视频作品
+                    </button>
+                </div>
+            </section>
+
+            <section class="mb-20">
+                <h2 class="text-3xl font-bold text-white mb-8 text-center">主图作品</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1318328187.vod2.myqcloud.com/3dcdd3b3vodsh1318328187/5d3d2cb61397757904256982418/EZeFYWFYGuIA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1318328187.vod2.myqcloud.com/3dcdd3b3vodsh1318328187/5ab1cc161397757904256852854/DKHUoOhUeG4A.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1318328187.vod2.myqcloud.com/3dcdd3b3vodsh1318328187/153e67da1397757904262937965/SEm5Gn3qxIYA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1318328187.vod2.myqcloud.com/3dcdd3b3vodsh1318328187/6fb343341397757904260449549/eNbvspnuPcQA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                </div>
+                 <div class="text-center mt-12">
+                    <button onclick="showPage('main-images')" class="border-2 border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black font-semibold py-3 px-8 rounded-lg transition-colors duration-300">
+                        更多主图作品
+                    </button>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="text-3xl font-bold text-white mb-8 text-center">详情页作品</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                        <img src="https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/c6ce266a5145403693659539431/skd4qHxRXV0A.png"
+                             data-full-src="https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/061713a25145403693643290580/tX26QfTR1sAA.png"
+                             class="portfolio-image-clickable w-full h-full object-cover">
+                    </div>
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                        <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/c9e262075145403693690815157/ORabGQsyEP8A.png"
+                             data-full-src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/ddbad3bd5145403693741113915/g00AkHMe3rsA.png"
+                             class="portfolio-image-clickable w-full h-full object-cover">
+                    </div>
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                        <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/d7cfc5be5145403693727321137/hiEcAl9ulJ4A.png"
+                             data-full-src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/2460afc15145403693745926300/8Z7KEn0h8YYA.png"
+                             class="portfolio-image-clickable w-full h-full object-cover">
+                    </div>
+                    <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                        <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/02773eb25145403693748592396/U1tCxD8KklQA.png"
+                             data-full-src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/2ba56d835145403693728601941/UAnKo0wfGUgA.png"
+                             class="portfolio-image-clickable w-full h-full object-cover">
+                    </div>
+                </div>
+                 <div class="text-center mt-12">
+                    <button onclick="showPage('detail-pages')" class="border-2 border-sky-400 text-sky-400 hover:bg-sky-400 hover:text-black font-semibold py-3 px-8 rounded-lg transition-colors duration-300">
+                        更多详情页作品
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <div id="videos" class="page container mx-auto px-6 py-12 hidden">
+            <h1 class="text-4xl font-bold text-white mb-12 text-center">视频作品</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="portfolio-card rounded-lg overflow-hidden">
+                    <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/bad23f4e5145403693598708255/atxIUFojD6kA.mp4')">
+                         <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/fc16e5be5145403693582511038/Jw65Fp3ozAYA.jpg" alt="视频封面1" class="w-full h-full object-cover">
+                         <div class="play-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-white mb-2">体测镜项目</h3>
+                        <p class="text-gray-400 text-sm">体测镜宣传片制作，根据客户脚本独立制作三维动画和视频后期。</p>
+                    </div>
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden">
+                    <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/af893bdd5145403693581571023/wSGzIuqvA1YA.mp4')">
+                         <img src="https://1500040643.vod-qcloud.com/a2bd5148vodtranssh1500040643/af893bdd5145403693581571023/coverBySnapshot_10_0.jpg" alt="视频封面2" class="w-full h-full object-cover">
+                         <div class="play-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-white mb-2">推拉U盘项目</h3>
+                        <p class="text-gray-400 text-sm">推拉式U盘产品的三维动画，个人全流程制作。</p>
+                    </div>
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden">
+                    <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/ed851f125145403693592787708/7Gxfi2fSpvsA.mp4')">
+                         <img src="https://1500040643.vod-qcloud.com/a2bd5148vodtranssh1500040643/ed851f125145403693592787708/coverBySnapshot_10_0.jpg" alt="视频封面3" class="w-full h-full object-cover">
+                         <div class="play-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-white mb-2">U盘项目</h3>
+                        <p class="text-gray-400 text-sm">U盘产品的三维动画，个人全流程制作。</p>
+                    </div>
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden">
+                    <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/fbe7c9085145403693636068806/DlBAhTX9HigA.mp4')">
+                         <img src="https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/839ca3855145403693719286520/Eyh7oPau5JsA.png" alt="视频封面4" class="w-full h-full object-cover">
+                         <div class="play-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-white mb-2">车载吸尘器项目</h3>
+                        <p class="text-gray-400 text-sm">车载吸尘器三维动画制作，个人全流程。</p>
+                    </div>
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden">
+                    <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/02180ee85145403693629544715/PPWqIlqTDaYA.mp4')">
+                         <img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/b7b7909e5145403693730991130/81RnEesmsrwA.png" alt="视频封面5" class="w-full h-full object-cover">
+                         <div class="play-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-white mb-2">新品发布会项目</h3>
+                        <p class="text-gray-400 text-sm">光峰科技投影技术发布会视频制作，根据客户脚本独立完成。</p>
+                    </div>
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden">
+                    <div class="video-thumb-container" onclick="openVideoLightbox('https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/960051815145403693638088003/iVg1AgKZwM8A.mp4')">
+                         <img src="https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/50ee9e825145403693685270171/da9OOFhAyV0A.png" alt="视频封面6" class="w-full h-full object-cover">
+                         <div class="play-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-white mb-2">吸尘器项目</h3>
+                        <p class="text-gray-400 text-sm">家用/车用吸尘器三维动画制作，独立完成。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-images" class="page container mx-auto px-6 py-12 hidden">
+            <h1 class="text-4xl font-bold text-white mb-12 text-center">主图作品</h1>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/139745f95145403693643820032/iCfBHFZsmasA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/9d6e8e865145403693645151559/OaWiHto4yHEA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/3e24c7da5145403693630732143/z2yR0c5vVmoA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/90635ca15145403693733359330/bdhDfYMe3v4A.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/1ee7c8d05145403693738903687/F38z51e4Ac4A.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/c92b49cb5145403693737586451/6n4PROWqoi8A.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/a4dccd965145403693709819968/r6cAaczWR6UA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/782cd7a25145403693743181724/DtB2XlOzhh8A.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/cbd363a0vodsh1500040643/25e099075145403693735183807/c3RjSL0c4QsA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-square"><img src="https://1500040643.vod-qcloud.com/6cdfecd9vodcq1500040643/4cddbbb95145403693715112911/JvKjA1f8MIoA.jpg" class="portfolio-image-clickable w-full h-full object-cover"></div>
+            </div>
+        </div>
+
+        <div id="detail-pages" class="page container mx-auto px-6 py-12 hidden">
+            <h1 class="text-4xl font-bold text-white mb-12 text-center">详情页作品</h1>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                 <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                    <img src="https://placehold.co/900x1600/1e293b/7dd3fc?text=缩略图1"
+                         data-full-src="https://placehold.co/800x2400/1e293b/7dd3fc?text=完整长图1"
+                         class="portfolio-image-clickable w-full h-full object-cover">
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                    <img src="https://placehold.co/900x1600/1e293b/7dd3fc?text=缩略图2"
+                         data-full-src="https://placehold.co/800x2400/1e293b/7dd3fc?text=完整长图2"
+                         class="portfolio-image-clickable w-full h-full object-cover">
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                    <img src="https://placehold.co/900x1600/1e293b/7dd3fc?text=缩略图3"
+                         data-full-src="https://placehold.co/800x2400/1e293b/7dd3fc?text=完整长图3"
+                         class="portfolio-image-clickable w-full h-full object-cover">
+                </div>
+                <div class="portfolio-card rounded-lg overflow-hidden aspect-[9/16]">
+                    <img src="https://placehold.co/900x1600/1e293b/7dd3fc?text=缩略图4"
+                         data-full-src="https://placehold.co/800x2400/1e293b/7dd3fc?text=完整长图4"
+                         class="portfolio-image-clickable w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-black mt-20">
+        <div class="container mx-auto px-6 py-6 text-center text-gray-500">
+            <p>&copy; 2025. All Rights Reserved. Designed by 鲁闯.</p>
+        </div>
+    </footer>
+
+    <div id="image-lightbox" class="lightbox fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center hidden z-50 p-4">
+        <span class="lightbox-close absolute top-5 right-8 text-white text-5xl font-bold cursor-pointer hover:text-sky-400 transition-colors">&times;</span>
+        <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-4 z-10">
+            <button class="zoom-in bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full text-2xl flex items-center justify-center transition-colors">+</button>
+            <button class="zoom-out bg-gray-700 hover:bg-gray-600 text-white w-12 h-12 rounded-full text-2xl flex items-center justify-center transition-colors">-</button>
+        </div>
+        <div class="w-full h-full flex items-center justify-center overflow-hidden">
+             <img id="lightbox-img" src="" alt="放大的图片" class="max-w-full max-h-full cursor-grab">
+        </div>
+    </div>
+    
+    <div id="video-lightbox" class="lightbox fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center hidden z-50 p-4">
+        <span class="lightbox-close absolute top-5 right-8 text-white text-5xl font-bold cursor-pointer hover:text-sky-400 transition-colors">&times;</span>
+        <div class="w-full max-w-4xl aspect-video">
+            <video id="lightbox-video-player" class="w-full h-full" controls autoplay playsinline src=""></video>
+        </div>
+    </div>
+    
+    <div id="contact-lightbox" class="lightbox fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center hidden z-50 p-4">
+        <span class="lightbox-close absolute top-5 right-8 text-white text-5xl font-bold cursor-pointer hover:text-sky-400 transition-colors">&times;</span>
+        <div class="bg-gray-800 p-8 rounded-lg text-center shadow-2xl">
+            <h3 class="text-2xl font-semibold text-white mb-4">联系我</h3>
+            <img src="https://1318328187.vod2.myqcloud.com/deda5cecvodcq1318328187/ad3a85a75145403693343481577/YxmNprsv1k0A.png" alt="联系方式二维码" class="w-64 h-64 mx-auto rounded-md">
+            <p class="text-gray-400 mt-4">请使用微信扫描二维码</p>
+        </div>
+    </div>
+
+
+    <script>
+        // 页面切换逻辑
+        const pages = document.querySelectorAll('.page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        function showPage(pageId, clickedLink) {
+            pages.forEach(page => page.classList.add('hidden'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) targetPage.classList.remove('hidden');
+            
+            if (clickedLink) {
+                navLinks.forEach(link => link.classList.remove('active'));
+                clickedLink.classList.add('active');
+            } else {
+                 navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('onclick').includes(`'${pageId}'`)) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+            window.scrollTo(0, 0);
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        mobileMenuButton.addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+        
+        // --- 视频灯箱逻辑 ---
+        const videoLightbox = document.getElementById('video-lightbox');
+        const lightboxVideoPlayer = document.getElementById('lightbox-video-player');
+        
+        function openVideoLightbox(videoSrc) {
+            lightboxVideoPlayer.src = videoSrc;
+            videoLightbox.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoLightbox() {
+            lightboxVideoPlayer.pause();
+            lightboxVideoPlayer.src = ""; // 停止加载
+            videoLightbox.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // --- 联系我灯箱逻辑 ---
+        const contactLightbox = document.getElementById('contact-lightbox');
+        function openContactLightbox(event) {
+            event.preventDefault(); // 防止链接跳转
+            contactLightbox.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactLightbox() {
+            contactLightbox.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('home', document.querySelector('.nav-link'));
+
+            // --- 图片放大功能 ---
+            const imageLightbox = document.getElementById('image-lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const portfolioImgs = document.querySelectorAll('.portfolio-image-clickable');
+            
+            let scale = 1;
+            let isPanning = false;
+            let startX = 0;
+            let startY = 0;
+            let translateX = 0;
+            let translateY = 0;
+
+            function openImageLightbox(e) {
+                const clickedImg = e.target;
+                if (clickedImg.closest('.md\\:w-1\\/3')) return;
+
+                // 优先使用data-full-src，如果没有，则使用src
+                const fullSrc = clickedImg.dataset.fullSrc || clickedImg.src;
+                lightboxImg.src = fullSrc;
+
+                imageLightbox.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                resetZoom();
+            }
+
+            function closeImageLightbox() {
+                imageLightbox.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+
+            function resetZoom() {
+                scale = 1;
+                translateX = 0;
+                translateY = 0;
+                applyTransform();
+            }
+            
+            function applyTransform() {
+                lightboxImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            }
+
+            function handleZoom(e) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                scale = Math.max(0.5, Math.min(scale + delta, 5));
+                applyTransform();
+            }
+
+            function handleMouseDown(e) {
+                if (scale <= 1) return;
+                e.preventDefault();
+                isPanning = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                lightboxImg.classList.add('panning');
+            }
+
+
+
+            function handleMouseMove(e) {
+                if (!isPanning) return;
+                e.preventDefault();
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                applyTransform();
+            }
+
+            function handleMouseUp() {
+                isPanning = false;
+                lightboxImg.classList.remove('panning');
+            }
+
+            portfolioImgs.forEach(img => img.addEventListener('click', openImageLightbox));
+            imageLightbox.querySelector('.lightbox-close').addEventListener('click', closeImageLightbox);
+            imageLightbox.addEventListener('click', (e) => {
+                if (e.target === imageLightbox) closeImageLightbox();
+            });
+            
+            lightboxImg.addEventListener('wheel', handleZoom);
+            lightboxImg.addEventListener('mousedown', handleMouseDown);
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            
+            imageLightbox.querySelector('.zoom-in').addEventListener('click', () => {
+                scale = Math.min(scale + 0.2, 5);
+                applyTransform();
+            });
+            imageLightbox.querySelector('.zoom-out').addEventListener('click', () => {
+                scale = Math.max(0.5, scale - 0.2);
+                applyTransform();
+            });
+
+            // --- 联系我按钮事件 ---
+            document.getElementById('contact-btn').addEventListener('click', openContactLightbox);
+
+            // --- 通用灯箱关闭逻辑 ---
+            videoLightbox.querySelector('.lightbox-close').addEventListener('click', closeVideoLightbox);
+            videoLightbox.addEventListener('click', (e) => {
+                if (e.target === videoLightbox) closeVideoLightbox();
+            });
+
+            contactLightbox.querySelector('.lightbox-close').addEventListener('click', closeContactLightbox);
+            contactLightbox.addEventListener('click', (e) => {
+                if (e.target === contactLightbox) closeContactLightbox();
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeImageLightbox();
+                    closeVideoLightbox();
+                    closeContactLightbox();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
